@@ -1,0 +1,102 @@
+/* Fondo principal */
+.main-root {
+    -fx-background-color: #23262E;
+}
+
+/* Editor de código */
+.code-editor {
+    -fx-background-color: #23262E;
+    -fx-font-family: "Consolas", "Fira Mono", "monospace";
+    -fx-font-size: 14px;
+    -fx-highlight-fill: #3D4352;
+    -fx-highlight-text-fill: #D5CED9;
+    -fx-border-color: #363c49;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-fill: #ffffff !important;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #746f77;
+}
+
+/* Números de línea con espacio para 3 dígitos y padding */
+.code-area .lineno, .lineno {
+    -fx-background-color: #23262E;
+    -fx-text-fill: #c0c0c0;
+    -fx-font-size: 15px;
+    -fx-padding: 0 12px 0 12px;    /* padding izquierdo y derecho */
+    -fx-min-width: 38px;           /* espacio para 3 dígitos */
+    -fx-alignment: center-right;
+}
+
+/* Palabras clave (morado) */
+.keyword {
+    -fx-fill: #c74ded;
+    -fx-font-weight: bold;
+}
+
+/* Consola de salida */
+.console-output {
+    -fx-control-inner-background: #2b303b;
+    -fx-text-fill: #96E072;
+    -fx-font-family: "Consolas", monospace;
+    -fx-prompt-text-fill: #746f77;
+    -fx-border-color: #363c49;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-font-size: 14px;
+}
+
+/* Etiqueta de consola */
+.console-label {
+    -fx-text-fill: #00e8c6;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Scrollbars */
+.text-area .scroll-bar:vertical,
+.text-area .scroll-bar:horizontal,
+.code-area .scroll-bar:vertical,
+.code-area .scroll-bar:horizontal {
+    -fx-background-color: #23262E;
+}
+.text-area .thumb, .code-area .thumb {
+    -fx-background-color: #3A3F4C77;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+}
+.text-area .thumb:hover, .code-area .thumb:hover {
+    -fx-background-color: #3A3F4CAA;
+}
+.text-area .thumb:pressed, .code-area .thumb:pressed {
+    -fx-background-color: #3A3F4CCC;
+}
+
+/* Placeholder para resaltar palabras clave (simulación, requiere RichTextFX para real) */
+.string {
+    -fx-fill: #96E072;
+}
+.number {
+    -fx-fill: #f39c12;
+}
+.comment {
+    -fx-fill: #A0A1A7cc;
+    -fx-font-style: italic;
+}
+
+.imaginary {
+    -fx-fill: #7cb7ff;
+}
+
+.code-area, .code-editor {
+    -fx-text-fill: #ffffff !important;
+    -fx-background-color: #23262E;
+    -fx-font-family: "Consolas", "Fira Mono", "monospace";
+    -fx-font-size: 14px;
+    -fx-highlight-fill: #3D4352;
+    -fx-highlight-text-fill: #D5CED9;
+    -fx-border-color: #363c49;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-prompt-text-fill: #746f77;
+}
