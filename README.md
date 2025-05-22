@@ -17,4 +17,3 @@ Antes de ejecutar el proyecto, asegúrate de tener instalado lo siguiente:
 - [JavaFX SDK](https://openjfx.io/)
 - [JFlex](https://jflex.de/)
 - [Java CUP](http://www2.cs.tum.edu/projects/cup/)
-- Un IDE compatible, como [Visual Studio Code](https://code.visualstudio.com/) o [IntelliJ IDEA](https://www.jetbrains.com/idea/)
