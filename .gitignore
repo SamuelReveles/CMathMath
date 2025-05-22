@@ -1,0 +1,10 @@
+javafx-sdk-17.0.15
+.vscode
+.bin
+src/java-cup-11b.jar
+src/CMathMathLexer.java
+src/CMathMathParse.java
+src/sym.java
+src/*.java~
+src/*.sh
+src/*.txt
