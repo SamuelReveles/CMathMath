@@ -21,15 +21,29 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 public class UI extends Application {
 
     private static final String[] KEYWORDS = {
-        "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
-        "conjunto", "PI", "E", "imprimir"
-    };
+    "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
+    "conjunto", "PI", "E", "imprimir"
+};
 
-    private static final Pattern KEYWORD_PATTERN = Pattern.compile(
-        "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b"
-    );
+private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
+private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
+private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
+private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
+private static final String BRACE_PATTERN = "[\\[\\]{}()]";
+private static final String COMMENT_PATTERN = "//[^\n]*";
+private static final String COMMA_PATTERN = ",";
+private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
 
-    private static final Pattern IMAGINARY_PATTERN = Pattern.compile("\\b-?\\d+(\\.\\d+)?i\\b");
+private static final Pattern PATTERN = Pattern.compile(
+    "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+    + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
+    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+    + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
+    + "|(?<BRACE>" + BRACE_PATTERN + ")"
+    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+    + "|(?<ID>" + ID_PATTERN + ")"
+    + "|(?<COMMA>" + COMMA_PATTERN + ")"
+);
 
     private CodeArea codeEditor;
     private TextArea consoleOutput;
@@ -73,7 +87,7 @@ public class UI extends Application {
         codeEditor.getStyleClass().add("code-editor");
         codeEditor.setWrapText(true);
         codeEditor.textProperty().addListener((obs, oldText, newText) -> {
-            codeEditor.setStyleSpans(0, computeHighlighting(newText));
+            codeEditor.setStyleSpans(0, keyHighlighting(newText, PATTERN));
         });
 
         VBox editorBox = new VBox(codeEditor);
@@ -92,7 +106,7 @@ public class UI extends Application {
 
         Button closeConsoleBtn = new Button("✕");
         closeConsoleBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #00e8c6; -fx-font-size: 14px; -fx-padding: 2 8 2 8;");
+                "-fx-background-color: transparent; -fx-text-fill: #00e8c6; -fx-font-size: 14px; -fx-padding: 2 8 2 8;");
         closeConsoleBtn.setOnAction(e -> consoleBox.setVisible(false));
 
         HBox consoleHeader = new HBox(consoleLabel, new Region(), closeConsoleBtn);
@@ -133,49 +147,31 @@ public class UI extends Application {
         codeEditor.replaceText("");
     }
 
-    // --- Resaltado de palabras clave ---
-    private StyleSpans<Collection<String>> computeHighlighting(String text) {
-        Matcher keywordMatcher = KEYWORD_PATTERN.matcher(text);
-        Matcher imaginaryMatcher = IMAGINARY_PATTERN.matcher(text);
-
-        int lastKwEnd = 0;
+    private StyleSpans<Collection<String>> keyHighlighting(String text, Pattern pattern) {
+        Matcher keywordMatcher = pattern.matcher(text);
+        int lastKeyword = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
-        // Guardar los rangos de los imaginarios
-        java.util.List<int[]> imaginaryRanges = new java.util.ArrayList<>();
-        while (imaginaryMatcher.find()) {
-            imaginaryRanges.add(new int[]{imaginaryMatcher.start(), imaginaryMatcher.end()});
-        }
-
-        int idx = 0;
         while (keywordMatcher.find()) {
-            // Añadir estilos para imaginarios antes de la palabra clave
-            while (idx < imaginaryRanges.size() && imaginaryRanges.get(idx)[0] < keywordMatcher.start()) {
-                int[] range = imaginaryRanges.get(idx);
-                if (range[0] > lastKwEnd)
-                    spansBuilder.add(Collections.emptyList(), range[0] - lastKwEnd);
-                spansBuilder.add(Collections.singleton("imaginary"), range[1] - range[0]);
-                lastKwEnd = range[1];
-                idx++;
-            }
-            if (keywordMatcher.start() > lastKwEnd)
-                spansBuilder.add(Collections.emptyList(), keywordMatcher.start() - lastKwEnd);
-            spansBuilder.add(Collections.singleton("keyword"), keywordMatcher.end() - keywordMatcher.start());
-            lastKwEnd = keywordMatcher.end();
+            String styleClass = 
+                keywordMatcher.group("KEYWORD") != null ? "keyword" :
+                keywordMatcher.group("NUMBER") != null ? "number" :
+                keywordMatcher.group("IMAGINARY") != null ? "imaginary" :
+                keywordMatcher.group("ID") != null ? "id" :
+                keywordMatcher.group("OPERATOR") != null ? "operator" :
+                keywordMatcher.group("BRACE") != null ? "brace" :
+                keywordMatcher.group("COMMENT") != null ? "comment" :
+                keywordMatcher.group("COMMA") != null ? "comma" :
+                null;
+            assert styleClass != null;
+            spansBuilder.add(Collections.emptyList(), keywordMatcher.start() - lastKeyword);
+            spansBuilder.add(Collections.singleton(styleClass), keywordMatcher.end() - keywordMatcher.start());
+            lastKeyword = keywordMatcher.end();
         }
-        // Añadir estilos para imaginarios después de la última palabra clave
-        while (idx < imaginaryRanges.size()) {
-            int[] range = imaginaryRanges.get(idx);
-            if (range[0] > lastKwEnd)
-                spansBuilder.add(Collections.emptyList(), range[0] - lastKwEnd);
-            spansBuilder.add(Collections.singleton("imaginary"), range[1] - range[0]);
-            lastKwEnd = range[1];
-            idx++;
-        }
-        if (text.length() > lastKwEnd)
-            spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
 
+        spansBuilder.add(Collections.emptyList(), text.length() - lastKeyword);
         return spansBuilder.create();
+
     }
 
     // --- Funciones de botones ---
@@ -183,8 +179,8 @@ public class UI extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Importar archivo de código");
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-            new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
+                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
         var file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             try {
@@ -201,8 +197,8 @@ public class UI extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Exportar código");
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-            new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
+                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
         var file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try {

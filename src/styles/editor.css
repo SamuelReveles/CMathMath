@@ -28,7 +28,7 @@
     -fx-alignment: center-right;
 }
 
-/* Palabras clave (morado) */
+/* Palabras clave */
 .keyword {
     -fx-fill: #c74ded;
     -fx-font-weight: bold;
@@ -89,7 +89,7 @@
 }
 
 .code-area, .code-editor {
-    -fx-text-fill: #ffffff !important;
+    -fx-fill: #ffffff !important;
     -fx-background-color: #23262E;
     -fx-font-family: "Consolas", "Fira Mono", "monospace";
     -fx-font-size: 14px;
@@ -99,4 +99,24 @@
     -fx-border-radius: 6;
     -fx-background-radius: 6;
     -fx-prompt-text-fill: #746f77;
+}
+
+/* Operadores */
+.operator {
+    -fx-fill: #00e8c6;
+}
+
+/* Llaves y paréntesis */
+.brace {
+    -fx-fill: #ffe66d;
+}
+
+/* Identificadores (variables) */
+.id {
+    -fx-fill: #fff;
+}
+
+/* Coma */
+.comma {
+    -fx-fill: red;
 }
