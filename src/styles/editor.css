@@ -120,3 +120,8 @@
 .comma {
     -fx-fill: red;
 }
+
+/* Caret (cursor) en el área de código */
+.code-area .caret {
+    -fx-stroke: #ffffff;
+}
