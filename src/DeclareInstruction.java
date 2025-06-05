@@ -7,6 +7,7 @@ public class DeclareInstruction implements Instruction {
     this.variables = variables;
   }
 
+  @Override
   public void run() {
     variables.put(id, expression.evaluate());
   }
