@@ -4,6 +4,11 @@ import java.util.Map;
 
 parser code
 {:
+  public CMathMathParser(java_cup.runtime.Scanner s, ConsoleController consoleController) {
+    super(s);
+    this.consoleController = consoleController;
+  }
+
   /**
    * Method automatically called on syntax errors.
    */
@@ -20,6 +25,7 @@ parser code
   }
 
   private Map<String, Complex> variables = new HashMap<>();
+  private ConsoleController consoleController;
 :}
 
 terminal double REAL, IMAGINARY;
@@ -52,7 +58,7 @@ bloque ::=
 ;
 
 instruccion ::= 
-    PRINT expresion:e {: System.out.println(e); :}
+    PRINT expresion:e {: consoleController.println(e.toString()); :}
 ;
 
 instruccion ::= 
