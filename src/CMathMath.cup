@@ -1,6 +1,8 @@
 import java_cup.runtime.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 parser code
 {:
@@ -34,75 +36,117 @@ terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
   SINO, PEROSI, F, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
   LEFT_BRACE, RIGHT_BRACE, ID;
 
-non terminal ini;
-non terminal instrucciones;
-non terminal instruccion;
-non terminal bloque;
-non terminal Complex expresion;
+non terminal codigo;
+non terminal List<Instruction> instrucciones;
+non terminal Instruction instruccion;
+non terminal List<Instruction> bloque;
+non terminal Expression expresion;
 
 precedence left PLUS, MINUS;
 precedence left MULTIPLICATION, DIVISION;
 
-start with ini;
+start with codigo;
 
-ini ::= instrucciones;
+codigo ::=
+    instrucciones:ins
+    {:
+      for (Instruction in : ins)
+      {
+        in.run();
+      }
+    :}
+;
 
 instrucciones ::= 
-    instruccion instrucciones
-  | instruccion
+    instruccion:in instrucciones:moreIns
+    {:
+      List<Instruction> instructions = new ArrayList<>();
+      instructions.add(in);
+      instructions.addAll(moreIns);
+      RESULT = instructions;
+    :}
+  | instruccion:in
+    {:
+      List<Instruction> instructions = new ArrayList<>();
+      instructions.add(in);
+      RESULT = instructions;
+    :}
   | error instrucciones
 ;
 
 bloque ::= 
-    LEFT_BRACE instrucciones RIGHT_BRACE
-;
-
-instruccion ::= 
-    PRINT expresion:e {: consoleController.println(e.toString()); :}
-;
-
-instruccion ::= 
-    DADO ID:id TALQUE expresion:e
-    {: 
-      variables.put(id, e); 
+    LEFT_BRACE instrucciones:ins RIGHT_BRACE
+    {:
+      RESULT = ins;
     :}
 ;
 
 instruccion ::= 
-    DESDE ID:id AVANZAR expresion:end CON expresion:step bloque:body
+    PRINT expresion:e
     {:
-      Complex iterador = variables.get(id);
-      if (iterador == null) {
-        System.err.println("Variable iterador no declarada: " + id);
-        iterador = Complex.fromReal(0);
-      }
-
-      Complex fin = end;
-      Complex paso = step;
-
-      if (iterador.isLessThan(fin)) {
-        while (iterador.isLessThan(fin) || iterador.equals(fin)) {
-          variables.put(id, iterador);
-          System.out.println(iterador);
-          iterador = iterador.add(paso);
-        }
-      } else {
-        while (iterador.isGreaterThan(fin) || iterador.equals(fin)) {
-          variables.put(id, iterador);
-          System.out.println(iterador);
-          iterador = iterador.substract(paso);
-        }
-      }
+      RESULT = new PrintInstruction(e, consoleController);
+    :}
+  | DADO ID:id TALQUE expresion:e
+    {:
+      RESULT = new DeclareInstruction(id, e, variables);
+    :}
+  | DESDE ID:id AVANZAR expresion:end CON expresion:step bloque:body
+    {:
+      RESULT = new IterationInstruction(id, end, step, body, variables);
     :}
 ;
 
 expresion ::= 
-    REAL:r {: RESULT = Complex.fromReal(r); :}
-  | IMAGINARY:i {: RESULT = Complex.fromImaginary(i); :}
-  | ID:e {: RESULT = variables.get(e); :}
-  | expresion:e1 PLUS expresion:e2 {: RESULT = e1.add(e2); :}
-  | expresion:e1 MINUS expresion:e2 {: RESULT = e1.substract(e2); :}
-  | expresion:e1 MULTIPLICATION expresion:e2 {: RESULT = e1.multiply(e2); :}
-  | expresion:e1 DIVISION expresion:e2 {: RESULT = e1.divide(e2); :}
-  | LEFT_PARENTH expresion:e RIGHT_PARENTH {: RESULT = e; :}
+    REAL:r
+    {:
+      RESULT = () -> Complex.fromReal(r);
+    :}
+  | IMAGINARY:i
+    {:
+      RESULT = () -> Complex.fromImaginary(i);
+    :}
+  | ID:id
+    {:
+      RESULT = () -> variables.get(id);
+    :}
+  | expresion:e1 PLUS expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.add(c2);
+      };
+    :}
+  | expresion:e1 MINUS expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.substract(c2);
+      };
+    :}
+  | expresion:e1 MULTIPLICATION expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.multiply(c2);
+      };
+    :}
+  | expresion:e1 DIVISION expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.divide(c2);
+      };
+    :}
+  | LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () -> e.evaluate();
+    :}
 ;
