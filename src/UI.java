@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +49,7 @@ private static final Pattern PATTERN = Pattern.compile(
     private CodeArea codeEditor;
     private TextArea consoleOutput;
     private VBox consoleBox;
+    private ConsoleController consoleController;
 
     @Override
     public void start(Stage stage) {
@@ -100,6 +102,10 @@ private static final Pattern PATTERN = Pattern.compile(
         consoleOutput.getStyleClass().add("console-output");
         consoleOutput.setPromptText("Salida de la consola...");
         consoleOutput.setWrapText(true);
+
+        // Se crea un controlador de consola que servirá para que
+        // el parser imprima en ella.
+        consoleController = new ConsoleController(consoleOutput);
 
         Label consoleLabel = new Label("Consola:");
         consoleLabel.getStyleClass().add("console-label");
@@ -219,14 +225,30 @@ private static final Pattern PATTERN = Pattern.compile(
 
     private void compileCode() {
         String code = codeEditor.getText();
+
+        // La consola se reiniciará en cada compilación.
+        consoleOutput.clear();
+
         if (code.isBlank()) {
             consoleOutput.appendText("No hay código para ejecutar.\n");
             return;
         }
-        // Aquí iría la lógica real de compilación/ejecución
-        consoleOutput.appendText("Ejecutando...\n");
-        // Simulación de salida
-        consoleOutput.appendText("Ejecución finalizada.\n");
+
+        // Este reader permite pasar el texto de código al parser.
+        StringReader stringReader = new StringReader(code);
+
+        // Se construye el parser con un lexer que lee el código y
+        // con el consoleController local para mostrar resultados en consola.
+        CMathMathParser parser = new CMathMathParser(new CMathMathLexer(stringReader), consoleController);
+        
+        // Proceso principal de parseo.
+        try {
+            parser.parse();
+        }
+        // Cualquier error al parsear será informado en la misma consola.
+        catch (Exception e) {
+            consoleOutput.appendText("Excepción ocurrida:\n" + e.getMessage());
+        }
     }
 
     private void showConsole() {
