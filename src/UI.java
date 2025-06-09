@@ -29,6 +29,7 @@ public class UI extends Application {
 private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
 private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
 private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
+private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
 private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
 private static final String BRACE_PATTERN = "[\\[\\]{}()]";
 private static final String COMMENT_PATTERN = "//[^\n]*";
@@ -38,6 +39,7 @@ private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).
 private static final Pattern PATTERN = Pattern.compile(
     "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
     + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
+    + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
     + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
     + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
     + "|(?<BRACE>" + BRACE_PATTERN + ")"
@@ -163,6 +165,7 @@ private static final Pattern PATTERN = Pattern.compile(
                 keywordMatcher.group("KEYWORD") != null ? "keyword" :
                 keywordMatcher.group("NUMBER") != null ? "number" :
                 keywordMatcher.group("IMAGINARY") != null ? "imaginary" :
+                keywordMatcher.group("DEGREES") != null ? "degrees" :
                 keywordMatcher.group("ID") != null ? "id" :
                 keywordMatcher.group("OPERATOR") != null ? "operator" :
                 keywordMatcher.group("BRACE") != null ? "brace" :

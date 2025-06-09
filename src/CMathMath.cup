@@ -30,11 +30,11 @@ parser code
   private ConsoleController consoleController;
 :}
 
-terminal double REAL, IMAGINARY;
+terminal double REAL, IMAGINARY, DEGREES;
 terminal PLUS, MINUS, MULTIPLICATION, DIVISION;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
   SINO, PEROSI, F, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
-  LEFT_BRACE, RIGHT_BRACE, ID;
+  LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT;
 
 non terminal codigo;
 non terminal List<Instruction> instrucciones;
@@ -105,6 +105,10 @@ expresion ::=
     {:
       RESULT = () -> Complex.fromImaginary(i);
     :}
+  | DEGREES:d
+    {:
+      RESULT = () -> Complex.fromDegrees(d);
+    :}
   | ID:id
     {:
       RESULT = () -> variables.get(id);
@@ -143,6 +147,54 @@ expresion ::=
         Complex c1 = e1.evaluate();
         Complex c2 = e2.evaluate();
         return c1.divide(c2);
+      };
+    :}
+  | SIN LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.sin();
+      };
+    :}
+  | COS LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.cos();
+      };
+    :}
+  | TAN LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.tan();
+      };
+    :}
+  | SEC LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.sec();
+      };
+    :}
+  | CSC LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.csc();
+      };
+    :}
+  | COT LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.cot();
       };
     :}
   | LEFT_PARENTH expresion:e RIGHT_PARENTH

@@ -88,6 +88,10 @@
     -fx-fill: #7cb7ff;
 }
 
+.degrees {
+    -fx-fill: #bfe019;
+}
+
 .code-area, .code-editor {
     -fx-fill: #ffffff !important;
     -fx-background-color: #23262E;
