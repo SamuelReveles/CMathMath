@@ -15,6 +15,10 @@ public class Complex {
         return new Complex(0, imaginary);
     }
 
+    public static Complex fromDegrees(double degrees) {
+        return new Complex(Math.toRadians(degrees), 0);
+    }
+
     public Complex add(Complex other) {
         return new Complex(this.real + other.real, this.imaginary + other.imaginary);
     }
@@ -46,6 +50,34 @@ public class Complex {
 
     public boolean isGreaterThan(Complex other) {
         return this.real > other.real;
+    }
+
+    public Complex sin() {
+        double r = Math.sin(real) * Math.cosh(imaginary);
+        double i = Math.cos(real) * Math.sinh(imaginary);
+        return new Complex(r, i);
+    }
+
+    public Complex cos() {
+        double r = Math.cos(real) * Math.cosh(imaginary);
+        double i = -Math.sin(real) * Math.sinh(imaginary);
+        return new Complex(r, i);
+    }
+
+    public Complex tan() {
+        return this.sin().divide(this.cos());
+    }
+
+    public Complex sec() {
+        return new Complex(1, 0).divide(this.cos());
+    }
+
+    public Complex csc() {
+        return new Complex(1, 0).divide(this.sin());
+    }
+
+    public Complex cot() {
+        return this.cos().divide(this.sin());
     }
 
     @Override
