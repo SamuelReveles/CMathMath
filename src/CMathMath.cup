@@ -11,19 +11,18 @@ parser code
     this.consoleController = consoleController;
   }
 
-  /**
-   * Method automatically called on syntax errors.
-   */
-  public void syntax_error(Symbol s) {
-    System.out.println("Error sintáctico en la línea " + (s.left) + " Columna " + (s.right) + ". No se esperaba este componente: " + (s.value) + ".");
+  @Override
+  public void report_error(String message, Object info) {
+    Symbol sym = (Symbol) info;
+    int line = sym.left + 1;
+    int col = sym.right + 1;
+    consoleController.println(String.format("Error de sintaxis en la línea %d, columna %d (token: %s)", line, col, sym.value));
   }
 
-  /**
-   * Method automatically called on a critical syntax error after which
-   * error recovery is impossible.
-   */
-  public void unrecoverable_syntax_error(Symbol s) throws java.lang.Exception{
-    System.out.println("Error sintáctico irrecuperable en la línea " + (s.left) + " Columna " + (s.right) + ". Componente " + (s.value) + " no reconocido.");
+  @Override
+  public void report_fatal_error(String message, Object info) {
+    consoleController.println("Error de sintaxis irrecuperable");
+    throw new RuntimeException("Análisis sintáctico abortado por error irrecuperable");
   }
 
   private Map<String, Complex> variables = new HashMap<>();
