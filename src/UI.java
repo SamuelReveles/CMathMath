@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -22,31 +23,31 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 public class UI extends Application {
 
     private static final String[] KEYWORDS = {
-    "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
-    "conjunto", "PI", "E", "imprimir"
-};
+            "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
+            "conjunto", "PI", "E", "imprimir"
+    };
 
-private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
-private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
-private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
-private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
-private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
-private static final String BRACE_PATTERN = "[\\[\\]{}()]";
-private static final String COMMENT_PATTERN = "//[^\n]*";
-private static final String COMMA_PATTERN = ",";
-private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
+    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
+    private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
+    private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
+    private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
+    private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
+    private static final String BRACE_PATTERN = "[\\[\\]{}()]";
+    private static final String COMMENT_PATTERN = "//[^\n]*";
+    private static final String COMMA_PATTERN = ",";
+    private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s")
+            + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
 
-private static final Pattern PATTERN = Pattern.compile(
-    "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
-    + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
-    + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
-    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
-    + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
-    + "|(?<BRACE>" + BRACE_PATTERN + ")"
-    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
-    + "|(?<ID>" + ID_PATTERN + ")"
-    + "|(?<COMMA>" + COMMA_PATTERN + ")"
-);
+    private static final Pattern PATTERN = Pattern.compile(
+            "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                    + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
+                    + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
+                    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                    + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
+                    + "|(?<BRACE>" + BRACE_PATTERN + ")"
+                    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+                    + "|(?<ID>" + ID_PATTERN + ")"
+                    + "|(?<COMMA>" + COMMA_PATTERN + ")");
 
     private CodeArea codeEditor;
     private TextArea consoleOutput;
@@ -161,17 +162,18 @@ private static final Pattern PATTERN = Pattern.compile(
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         while (keywordMatcher.find()) {
-            String styleClass = 
-                keywordMatcher.group("KEYWORD") != null ? "keyword" :
-                keywordMatcher.group("NUMBER") != null ? "number" :
-                keywordMatcher.group("IMAGINARY") != null ? "imaginary" :
-                keywordMatcher.group("DEGREES") != null ? "degrees" :
-                keywordMatcher.group("ID") != null ? "id" :
-                keywordMatcher.group("OPERATOR") != null ? "operator" :
-                keywordMatcher.group("BRACE") != null ? "brace" :
-                keywordMatcher.group("COMMENT") != null ? "comment" :
-                keywordMatcher.group("COMMA") != null ? "comma" :
-                null;
+            String styleClass = keywordMatcher.group("KEYWORD") != null ? "keyword"
+                    : keywordMatcher.group("NUMBER") != null ? "number"
+                            : keywordMatcher.group("IMAGINARY") != null ? "imaginary"
+                                    : keywordMatcher.group("DEGREES") != null ? "degrees"
+                                            : keywordMatcher.group("ID") != null ? "id"
+                                                    : keywordMatcher.group("OPERATOR") != null ? "operator"
+                                                            : keywordMatcher.group("BRACE") != null ? "brace"
+                                                                    : keywordMatcher.group("COMMENT") != null
+                                                                            ? "comment"
+                                                                            : keywordMatcher.group("COMMA") != null
+                                                                                    ? "comma"
+                                                                                    : null;
             assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), keywordMatcher.start() - lastKeyword);
             spansBuilder.add(Collections.singleton(styleClass), keywordMatcher.end() - keywordMatcher.start());
@@ -187,9 +189,8 @@ private static final Pattern PATTERN = Pattern.compile(
     private void importCode(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Importar archivo de código");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos .cmm", "*.cmm"));
         var file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             try {
@@ -205,12 +206,15 @@ private static final Pattern PATTERN = Pattern.compile(
     private void exportCode(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Exportar código");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos .cmm", "*.cmm"));
         var file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try {
+                String path = file.toPath().toString();
+                if (!path.toLowerCase().endsWith(".cmm")) {
+                    file = new File(path + ".cmm");
+                }
                 Files.writeString(file.toPath(), codeEditor.getText());
                 showConsole();
                 consoleOutput.appendText("Código exportado correctamente.\n");
@@ -243,7 +247,7 @@ private static final Pattern PATTERN = Pattern.compile(
         // Se construye el parser con un lexer que lee el código y
         // con el consoleController local para mostrar resultados en consola.
         CMathMathParser parser = new CMathMathParser(new CMathMathLexer(stringReader), consoleController);
-        
+
         // Proceso principal de parseo.
         try {
             parser.parse();

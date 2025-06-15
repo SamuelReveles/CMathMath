@@ -35,6 +35,12 @@ public class Complex {
         return new Complex(r, i);
     }
 
+    public Complex multiply(double other) {
+        double r = this.real * other;
+        double i = this.imaginary * other;
+        return new Complex(r, i);
+    }
+
     public Complex divide(Complex other) {
         double denominator = other.real * other.real + other.imaginary * other.imaginary;
         double r = (this.real * other.real + this.imaginary * other.imaginary) / denominator;
@@ -80,6 +86,26 @@ public class Complex {
 
     public Complex cot() {
         return this.cos().divide(this.sin());
+    }
+
+    public Complex round() {
+        return new Complex(Math.round(this.real), Math.round(this.imaginary));
+    }
+
+    public double magnitude() {
+        return Math.sqrt(this.real * this.real + this.imaginary * this.imaginary);
+    }
+
+    public double argument() {
+        return Math.atan2(this.imaginary, this.real);
+    }
+
+    public Complex pow(double n) {
+        double r = magnitude();
+        double theta = argument();
+        double newR = Math.pow(r, n);
+        double newTheta = n * theta;
+        return new Complex(newR * Math.cos(newTheta), newR * Math.sin(newTheta));
     }
 
     @Override

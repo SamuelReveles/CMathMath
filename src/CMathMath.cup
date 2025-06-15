@@ -30,7 +30,7 @@ parser code
 :}
 
 terminal double REAL, IMAGINARY, DEGREES;
-terminal PLUS, MINUS, MULTIPLICATION, DIVISION;
+terminal PLUS, MINUS, MULTIPLICATION, DIVISION, ROUND;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
   SINO, PEROSI, F, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
   LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA,
@@ -45,7 +45,7 @@ non terminal List<Expression> listaExpresiones;
 non terminal Expression expresion;
 
 precedence left PLUS, MINUS;
-precedence left MULTIPLICATION, DIVISION;
+precedence left MULTIPLICATION, DIVISION, ROUND;
 precedence left UNION, INTERSECT;
 
 start with codigo;
@@ -147,6 +147,10 @@ expresion ::=
     {:
       RESULT = () -> Complex.fromReal(r);
     :}
+  | MINUS REAL:r
+    {:
+      RESULT = () -> Complex.fromReal(-r);
+    :}
   | IMAGINARY:i
     {:
       RESULT = () -> Complex.fromImaginary(i);
@@ -154,6 +158,10 @@ expresion ::=
   | DEGREES:d
     {:
       RESULT = () -> Complex.fromDegrees(d);
+    :}
+  | MINUS DEGREES:d
+    {:
+      RESULT = () -> Complex.fromDegrees(-d);
     :}
   | ID:id
     {:
@@ -178,6 +186,15 @@ expresion ::=
       };
     :}
   | expresion:e1 MULTIPLICATION expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.multiply(c2);
+      };
+    :}
+  | LEFT_PARENTH expresion:e1 RIGHT_PARENTH LEFT_PARENTH expresion:e2 RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -243,8 +260,33 @@ expresion ::=
         return c.cot();
       };
     :}
+  | ROUND LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () ->
+      {
+        Complex c = e.evaluate();
+        return c.round();
+      };
+    :}
   | LEFT_PARENTH expresion:e RIGHT_PARENTH
     {:
       RESULT = () -> e.evaluate();
+    :}
+  | MINUS LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () -> 
+      {
+        Complex c = e.evaluate();
+        Complex minus = new Complex(-1, -1);
+        return c.multiply(minus);
+      };
+    :}
+  | REAL:r LEFT_PARENTH expresion:e RIGHT_PARENTH
+    {:
+      RESULT = () -> 
+      {
+        Complex c = e.evaluate();
+        return c.multiply(r);
+      };
     :}
 ;

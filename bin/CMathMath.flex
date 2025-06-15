@@ -11,12 +11,14 @@ import java_cup.runtime.Symbol;
 WHITESPACE = [\s\n]+
 IMAGINARY = [0-9]+(\.[0-9]+)?i
 REAL = [0-9]+(\.[0-9]+)?
+DEGREES = [0-9]+(\.[0-9]+)?°
 IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 ERROR = .
 %%
 
 {WHITESPACE} { /*Ignorar lol*/ }
 {IMAGINARY} {  return new Symbol(sym.IMAGINARY, yyline, yycolumn, Double.parseDouble(yytext().substring(0, yytext().length() - 1))); }
+{DEGREES} { return new Symbol(sym.DEGREES, yyline, yycolumn, Double.parseDouble(yytext().substring(0, yytext().length() - 1))); }
 {REAL} {  return new Symbol(sym.REAL, yyline, yycolumn, Double.parseDouble(yytext())); }
 "+" { return new Symbol(sym.PLUS, yyline, yycolumn, yytext()); }
 "-" { return new Symbol(sym.MINUS, yyline, yycolumn, yytext()); }
@@ -26,6 +28,16 @@ ERROR = .
 ")" { return new Symbol(sym.RIGHT_PARENTH, yyline, yycolumn, yytext()); }
 "{" { return new Symbol(sym.LEFT_BRACE, yyline, yycolumn, yytext()); }
 "}" { return new Symbol(sym.RIGHT_BRACE, yyline, yycolumn, yytext()); }
+"," { return new Symbol(sym.COMMA, yyline, yycolumn, yytext()); }
+"sen" { return new Symbol(sym.SIN, yyline, yycolumn, yytext()); }
+"cos" { return new Symbol(sym.COS, yyline, yycolumn, yytext()); }
+"tan" { return new Symbol(sym.TAN, yyline, yycolumn, yytext()); }
+"sec" { return new Symbol(sym.SEC, yyline, yycolumn, yytext()); }
+"csc" { return new Symbol(sym.CSC, yyline, yycolumn, yytext()); }
+"cot" { return new Symbol(sym.COT, yyline, yycolumn, yytext()); }
+"union" { return new Symbol(sym.UNION, yyline, yycolumn, yytext()); }
+"interseccion" { return new Symbol(sym.INTERSECT, yyline, yycolumn, yytext()); }
+"redondear" { return new Symbol(sym.ROUND, yyline, yycolumn, yytext()); }
 "dado" { return new Symbol(sym.DADO, yyline, yycolumn, yytext()); }
 "equivale" { return new Symbol(sym.EQUIVALE, yyline, yycolumn, yytext()); }
 "si" { return new Symbol(sym.SI, yyline, yycolumn, yytext()); }
