@@ -34,16 +34,20 @@ terminal double REAL, IMAGINARY, DEGREES;
 terminal PLUS, MINUS, MULTIPLICATION, DIVISION;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
   SINO, PEROSI, F, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
-  LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT;
+  LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA,
+  UNION, INTERSECT;
 
 non terminal codigo;
 non terminal List<Instruction> instrucciones;
 non terminal Instruction instruccion;
 non terminal List<Instruction> bloque;
+non terminal SetExpression expresionConjunto;
+non terminal List<Expression> listaExpresiones;
 non terminal Expression expresion;
 
 precedence left PLUS, MINUS;
 precedence left MULTIPLICATION, DIVISION;
+precedence left UNION, INTERSECT;
 
 start with codigo;
 
@@ -86,6 +90,10 @@ instruccion ::=
     {:
       RESULT = new PrintInstruction(e, consoleController);
     :}
+  | PRINT expresionConjunto:ec
+    {:
+      RESULT = new PrintSetInstruction(ec, consoleController);
+    :}
   | DADO ID:id TALQUE expresion:e
     {:
       RESULT = new DeclareInstruction(id, e, variables);
@@ -93,6 +101,45 @@ instruccion ::=
   | DESDE ID:id AVANZAR expresion:end CON expresion:step bloque:body
     {:
       RESULT = new IterationInstruction(id, end, step, body, variables);
+    :}
+;
+
+expresionConjunto ::=
+    LEFT_BRACE listaExpresiones:le RIGHT_BRACE
+    {:
+      RESULT = () -> new Set(le);
+    :}
+  | expresionConjunto:ec1 UNION expresionConjunto:ec2
+    {:
+      RESULT = () -> {
+        Set c1 = ec1.evaluate();
+        Set c2 = ec2.evaluate();
+        return c1.union(c2);
+      };
+    :}
+  | expresionConjunto:ec1 INTERSECT expresionConjunto:ec2
+    {:
+      RESULT = () -> {
+        Set c1 = ec1.evaluate();
+        Set c2 = ec2.evaluate();
+        return c1.intersect(c2);
+      };
+    :}
+;
+
+listaExpresiones ::=
+    expresion:e
+    {:
+      List<Expression> expresiones = new ArrayList<>();
+      expresiones.add(e);
+      RESULT = expresiones;
+    :}
+  | expresion:e COMMA listaExpresiones:le
+    {:
+      List<Expression> expresiones = new ArrayList();
+      expresiones.add(e);
+      expresiones.addAll(le);
+      RESULT = expresiones;
     :}
 ;
 

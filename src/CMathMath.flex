@@ -28,12 +28,15 @@ ERROR = .
 ")" { return new Symbol(sym.RIGHT_PARENTH, yyline, yycolumn, yytext()); }
 "{" { return new Symbol(sym.LEFT_BRACE, yyline, yycolumn, yytext()); }
 "}" { return new Symbol(sym.RIGHT_BRACE, yyline, yycolumn, yytext()); }
+"," { return new Symbol(sym.COMMA, yyline, yycolumn, yytext()); }
 "sen" { return new Symbol(sym.SIN, yyline, yycolumn, yytext()); }
 "cos" { return new Symbol(sym.COS, yyline, yycolumn, yytext()); }
 "tan" { return new Symbol(sym.TAN, yyline, yycolumn, yytext()); }
 "sec" { return new Symbol(sym.SEC, yyline, yycolumn, yytext()); }
 "csc" { return new Symbol(sym.CSC, yyline, yycolumn, yytext()); }
 "cot" { return new Symbol(sym.COT, yyline, yycolumn, yytext()); }
+"union" { return new Symbol(sym.UNION, yyline, yycolumn, yytext()); }
+"interseccion" { return new Symbol(sym.INTERSECT, yyline, yycolumn, yytext()); }
 "dado" { return new Symbol(sym.DADO, yyline, yycolumn, yytext()); }
 "equivale" { return new Symbol(sym.EQUIVALE, yyline, yycolumn, yytext()); }
 "si" { return new Symbol(sym.SI, yyline, yycolumn, yytext()); }
