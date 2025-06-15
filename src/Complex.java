@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Complex {
     public final double real;
     public final double imaginary;
@@ -89,5 +91,20 @@ public class Complex {
         if (imaginary > 0)
             return real + " + " + imaginary + "i";
         return real + " - " + (-imaginary) + "i";
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (object == null || object.getClass() != this.getClass())
+            return false;
+
+        return this.equals((Complex) object);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(real, imaginary);
     }
 }
