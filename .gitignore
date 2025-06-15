@@ -1,6 +1,7 @@
 javafx-sdk-17.0.15
 .vscode
 .bin
+bin
 src/java-cup-11b.jar
 src/CMathMathLexer.java
 src/CMathMathParser.java
