@@ -80,8 +80,7 @@
     -fx-fill: #f39c12;
 }
 .comment {
-    -fx-fill: #A0A1A7cc;
-    -fx-font-style: italic;
+    -fx-fill: #888888;
 }
 
 .imaginary {
@@ -118,6 +117,11 @@
 /* Identificadores (variables) */
 .id {
     -fx-fill: #fff;
+}
+
+/* Strings */
+.string {
+    -fx-fill: #96E072;
 }
 
 /* Coma */

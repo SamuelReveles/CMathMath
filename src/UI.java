@@ -26,27 +26,29 @@ public class UI extends Application {
     "conjunto", "PI", "E", "imprimir"
 };
 
-private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
-private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
-private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
-private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
-private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
-private static final String BRACE_PATTERN = "[\\[\\]{}()]";
-private static final String COMMENT_PATTERN = "//[^\n]*";
-private static final String COMMA_PATTERN = ",";
-private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
+    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
+    private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
+    private static final String IMAGINARY_PATTERN = "\\b-?\\d+(\\.\\d+)?i\\b";
+    private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
+    private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
+    private static final String BRACE_PATTERN = "[\\[\\]{}()]";
+    private static final String COMMENT_PATTERN = "//.*";
+    private static final String COMMA_PATTERN = ",";
+    private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
+    private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s")
+            + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
 
-private static final Pattern PATTERN = Pattern.compile(
-    "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
-    + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
-    + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
-    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
-    + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
-    + "|(?<BRACE>" + BRACE_PATTERN + ")"
-    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
-    + "|(?<ID>" + ID_PATTERN + ")"
-    + "|(?<COMMA>" + COMMA_PATTERN + ")"
-);
+    private static final Pattern PATTERN = Pattern.compile(
+            "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                    + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
+                    + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
+                    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                    + "|(?<STRING>" + STRING_PATTERN + ")"
+                    + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
+                    + "|(?<BRACE>" + BRACE_PATTERN + ")"
+                    + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+                    + "|(?<ID>" + ID_PATTERN + ")"
+                    + "|(?<COMMA>" + COMMA_PATTERN + ")");
 
     private CodeArea codeEditor;
     private TextArea consoleOutput;
@@ -70,11 +72,6 @@ private static final Pattern PATTERN = Pattern.compile(
         exportBtn.setStyle("-fx-font-size: 12px; -fx-padding: 6 10 6 10;");
         exportBtn.setOnAction(e -> exportCode(stage));
 
-        Button exeBtn = new Button("Generar EXE");
-        exeBtn.getStyleClass().add("file-btn");
-        exeBtn.setStyle("-fx-font-size: 12px; -fx-padding: 6 10 6 10;");
-        exeBtn.setOnAction(e -> generateExe());
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -83,7 +80,7 @@ private static final Pattern PATTERN = Pattern.compile(
         runBtn.setStyle("-fx-font-size: 13px; -fx-padding: 6 18 6 18;");
         runBtn.setOnAction(e -> compileCode());
 
-        fileBar.getChildren().addAll(importBtn, exportBtn, exeBtn, spacer, runBtn);
+        fileBar.getChildren().addAll(importBtn, exportBtn, spacer, runBtn);
 
         // --- Editor de código con RichTextFX ---
         codeEditor = new CodeArea();
@@ -161,17 +158,20 @@ private static final Pattern PATTERN = Pattern.compile(
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
 
         while (keywordMatcher.find()) {
-            String styleClass = 
-                keywordMatcher.group("KEYWORD") != null ? "keyword" :
-                keywordMatcher.group("NUMBER") != null ? "number" :
-                keywordMatcher.group("IMAGINARY") != null ? "imaginary" :
-                keywordMatcher.group("DEGREES") != null ? "degrees" :
-                keywordMatcher.group("ID") != null ? "id" :
-                keywordMatcher.group("OPERATOR") != null ? "operator" :
-                keywordMatcher.group("BRACE") != null ? "brace" :
-                keywordMatcher.group("COMMENT") != null ? "comment" :
-                keywordMatcher.group("COMMA") != null ? "comma" :
-                null;
+            String styleClass = keywordMatcher.group("KEYWORD") != null ? "keyword"
+                    : keywordMatcher.group("NUMBER") != null ? "number"
+                            : keywordMatcher.group("IMAGINARY") != null ? "imaginary"
+                                    : keywordMatcher.group("DEGREES") != null ? "degrees"
+                                            : keywordMatcher.group("STRING") != null ? "string"
+                                                    : keywordMatcher.group("ID") != null ? "id"
+                                                            : keywordMatcher.group("OPERATOR") != null ? "operator"
+                                                                    : keywordMatcher.group("BRACE") != null ? "brace"
+                                                                    : keywordMatcher.group("COMMENT") != null ? "comment"
+                                                                    : keywordMatcher.group("BRACE") != null ? "brace"
+                                                                                    : keywordMatcher
+                                                                                            .group("COMMA") != null
+                                                                                                    ? "comma"
+                                                                                                    : null;
             assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), keywordMatcher.start() - lastKeyword);
             spansBuilder.add(Collections.singleton(styleClass), keywordMatcher.end() - keywordMatcher.start());
@@ -219,11 +219,6 @@ private static final Pattern PATTERN = Pattern.compile(
                 consoleOutput.appendText("Error al exportar archivo.\n");
             }
         }
-    }
-
-    private void generateExe() {
-        showConsole();
-        consoleOutput.appendText("Función para generar EXE no implementada.\n");
     }
 
     private void compileCode() {

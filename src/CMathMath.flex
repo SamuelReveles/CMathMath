@@ -13,16 +13,22 @@ IMAGINARY = [0-9]+(\.[0-9]+)?i
 REAL = [0-9]+(\.[0-9]+)?
 DEGREES = [0-9]+(\.[0-9]+)?°
 IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
+STRING = \"(\\.|[^\"\\])*\"
+COMMENT = "//".*
 ERROR = .
 %%
 
 {WHITESPACE} { /*Ignorar lol*/ }
+{COMMENT} { /*Ignorar lol*/ }
 {IMAGINARY} {  return new Symbol(sym.IMAGINARY, yyline, yycolumn, Double.parseDouble(yytext().substring(0, yytext().length() - 1))); }
 {DEGREES} { return new Symbol(sym.DEGREES, yyline, yycolumn, Double.parseDouble(yytext().substring(0, yytext().length() - 1))); }
+{STRING} { return new Symbol(sym.STRING, yyline, yycolumn, yytext().substring(1, yytext().length()-1)); }
 {REAL} {  return new Symbol(sym.REAL, yyline, yycolumn, Double.parseDouble(yytext())); }
 "+" { return new Symbol(sym.PLUS, yyline, yycolumn, yytext()); }
 "-" { return new Symbol(sym.MINUS, yyline, yycolumn, yytext()); }
 "*" { return new Symbol(sym.MULTIPLICATION, yyline, yycolumn, yytext()); }
+"^" { return new Symbol(sym.POW, yyline, yycolumn, yytext()); }
+"=" { return new Symbol(sym.EQUALS, yyline, yycolumn, yytext()); }
 "/" { return new Symbol(sym.DIVISION, yyline, yycolumn, yytext()); }
 "(" { return new Symbol(sym.LEFT_PARENTH, yyline, yycolumn, yytext()); }
 ")" { return new Symbol(sym.RIGHT_PARENTH, yyline, yycolumn, yytext()); }
@@ -42,7 +48,6 @@ ERROR = .
 "si" { return new Symbol(sym.SI, yyline, yycolumn, yytext()); }
 "si no" { return new Symbol(sym.SINO, yyline, yycolumn, yytext()); }
 "pero si" { return new Symbol(sym.PEROSI, yyline, yycolumn, yytext()); }
-"f" { return new Symbol(sym.F, yyline, yycolumn, yytext()); }
 "mientras" { return new Symbol(sym.MIENTRAS, yyline, yycolumn, yytext()); }
 "desde" { return new Symbol(sym.DESDE, yyline, yycolumn, yytext()); }
 "con" { return new Symbol(sym.CON, yyline, yycolumn, yytext()); }

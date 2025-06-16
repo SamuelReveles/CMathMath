@@ -82,6 +82,35 @@ public class Complex {
         return this.cos().divide(this.sin());
     }
 
+    public Complex round() {
+        return new Complex(Math.round(this.real * 100) / 100, Math.round(this.imaginary * 100) / 100);
+    }
+
+    public double magnitude() {
+        return Math.sqrt(this.real * this.real + this.imaginary * this.imaginary);
+    }
+
+    public double argument() {
+        return Math.atan2(this.imaginary, this.real);
+    }
+
+    public Complex pow(Complex exponent) {
+        double r = this.magnitude();
+        double theta = this.argument();
+
+        // ln(z) = ln(r) + iθ
+        Complex logZ = new Complex(Math.log(r), theta);
+
+        // w * ln(z)
+        Complex wLogZ = exponent.multiply(logZ);
+
+        // e^(w * ln(z)) = exp(a + bi) = exp(a) * (cos(b) + i sin(b))
+        double expReal = Math.exp(wLogZ.real);
+        return new Complex(
+                expReal * Math.cos(wLogZ.imaginary),
+                expReal * Math.sin(wLogZ.imaginary));
+    }
+
     @Override
     public String toString() {
         if (imaginary == 0)
