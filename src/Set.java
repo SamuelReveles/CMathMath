@@ -2,7 +2,7 @@ import java.util.List;
 import java.util.HashSet;
 
 public class Set {
-  public Set(List<Expression> expressions) {
+  public Set(List<ComplexExpression> expressions) {
     elements = new HashSet<>();
     expressions.forEach(e -> elements.add(e.evaluate()));
   }

@@ -42,8 +42,8 @@ non terminal Instruction instruccion;
 non terminal List<Instruction> bloque;
 non terminal SetExpression expresionConjunto;
 non terminal List<String> parametros;
-non terminal List<Expression> listaExpresiones;
-non terminal Expression expresion;
+non terminal List<ComplexExpression> listaExpresionesComplejos;
+non terminal ComplexExpression expresionComplejo;
 
 precedence left PLUS, MINUS;
 precedence left MULTIPLICATION, DIVISION, POW, ROUND;
@@ -86,7 +86,7 @@ bloque ::=
 ;
 
 instruccion ::= 
-    PRINT expresion:e
+    PRINT expresionComplejo:e
     {:
       RESULT = new PrintInstruction(e, consoleController);
     :}
@@ -94,7 +94,7 @@ instruccion ::=
     {:
       RESULT = new PrintInstruction(s, consoleController);
     :}
-  | PRINT STRING:s expresion: e
+  | PRINT STRING:s expresionComplejo: e
     {:
       RESULT = new PrintInstruction(s, e, consoleController);
     :}
@@ -102,31 +102,31 @@ instruccion ::=
     {:
       RESULT = new PrintSetInstruction(ec, consoleController);
     :}
-  | DADO ID:id TALQUE expresion:e
+  | DADO ID:id TALQUE expresionComplejo:e
     {:
       RESULT = new DeclareInstruction(id, e, variables);
     :}
-  | EQUIVALE ID:id EQUALS expresion:e
+  | EQUIVALE ID:id EQUALS expresionComplejo:e
     {:
       RESULT = new DeclareInstruction(id, e, variables);
     :}
-  | EQUIVALE ID:id PLUS EQUALS expresion:e
+  | EQUIVALE ID:id PLUS EQUALS expresionComplejo:e
     {:
       RESULT = new AssignOpInstruction(id, e, variables, "+");
     :}
-  | EQUIVALE ID:id MINUS EQUALS expresion:e
+  | EQUIVALE ID:id MINUS EQUALS expresionComplejo:e
     {:
       RESULT = new AssignOpInstruction(id, e, variables, "-");
     :}
-  | EQUIVALE ID:id MULTIPLICATION EQUALS expresion:e
+  | EQUIVALE ID:id MULTIPLICATION EQUALS expresionComplejo:e
     {:
       RESULT = new AssignOpInstruction(id, e, variables, "*");
     :}
-  | EQUIVALE ID:id DIVISION EQUALS expresion:e
+  | EQUIVALE ID:id DIVISION EQUALS expresionComplejo:e
     {:
       RESULT = new AssignOpInstruction(id, e, variables, "/");
     :}
-  | EQUIVALE ID:id POW EQUALS expresion:e
+  | EQUIVALE ID:id POW EQUALS expresionComplejo:e
     {:
       RESULT = new AssignOpInstruction(id, e, variables, "^");
     :}
@@ -138,14 +138,14 @@ instruccion ::=
     {:
       RESULT = new IncrementInstruction(id, variables, -1);
     :}
-  | DESDE ID:id AVANZAR expresion:end CON expresion:step bloque:body
+  | DESDE ID:id AVANZAR expresionComplejo:end CON expresionComplejo:step bloque:body
     {:
       RESULT = new IterationInstruction(id, end, step, body, variables);
     :}
 ;
 
 expresionConjunto ::=
-    LEFT_BRACE listaExpresiones:le RIGHT_BRACE
+    LEFT_BRACE listaExpresionesComplejos:le RIGHT_BRACE
     {:
       RESULT = () -> new Set(le);
     :}
@@ -167,23 +167,23 @@ expresionConjunto ::=
     :}
 ;
 
-listaExpresiones ::=
-    expresion:e
+listaExpresionesComplejos ::=
+    expresionComplejo:e
     {:
-      List<Expression> expresiones = new ArrayList<>();
+      List<ComplexExpression> expresiones = new ArrayList<>();
       expresiones.add(e);
       RESULT = expresiones;
     :}
-  | expresion:e COMMA listaExpresiones:le
+  | expresionComplejo:e COMMA listaExpresionesComplejos:le
     {:
-      List<Expression> expresiones = new ArrayList();
+      List<ComplexExpression> expresiones = new ArrayList();
       expresiones.add(e);
       expresiones.addAll(le);
       RESULT = expresiones;
     :}
 ;
 
-expresion ::= 
+expresionComplejo ::= 
     REAL:r
     {:
       RESULT = () -> Complex.fromReal(r);
@@ -208,7 +208,7 @@ expresion ::=
     {:
       RESULT = () -> variables.get(id);
     :}
-  | expresion:e1 PLUS expresion:e2
+  | expresionComplejo:e1 PLUS expresionComplejo:e2
     {:
       RESULT = () ->
       {
@@ -217,7 +217,7 @@ expresion ::=
         return c1.add(c2);
       };
     :}
-  | expresion:e1 MINUS expresion:e2
+  | expresionComplejo:e1 MINUS expresionComplejo:e2
     {:
       RESULT = () ->
       {
@@ -226,7 +226,7 @@ expresion ::=
         return c1.substract(c2);
       };
     :}
-  | expresion:e1 MULTIPLICATION expresion:e2
+  | expresionComplejo:e1 MULTIPLICATION expresionComplejo:e2
     {:
       RESULT = () ->
       {
@@ -235,7 +235,7 @@ expresion ::=
         return c1.multiply(c2);
       };
     :}
-  | LEFT_PARENTH expresion:e1 RIGHT_PARENTH LEFT_PARENTH expresion:e2 RIGHT_PARENTH
+  | LEFT_PARENTH expresionComplejo:e1 RIGHT_PARENTH LEFT_PARENTH expresionComplejo:e2 RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -244,7 +244,7 @@ expresion ::=
         return c1.multiply(c2);
       };
     :}
-  | expresion:e1 DIVISION expresion:e2
+  | expresionComplejo:e1 DIVISION expresionComplejo:e2
     {:
       RESULT = () ->
       {
@@ -253,7 +253,7 @@ expresion ::=
         return c1.divide(c2);
       };
     :}
-  | expresion:e1 POW expresion:e2
+  | expresionComplejo:e1 POW expresionComplejo:e2
     {:
       RESULT = () ->
       {
@@ -262,7 +262,7 @@ expresion ::=
         return c1.pow(c2);
       };
     :}
-  | SIN LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | SIN LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -270,7 +270,7 @@ expresion ::=
         return c.sin();
       };
     :}
-  | COS LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | COS LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -278,7 +278,7 @@ expresion ::=
         return c.cos();
       };
     :}
-  | TAN LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | TAN LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -286,7 +286,7 @@ expresion ::=
         return c.tan();
       };
     :}
-  | SEC LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | SEC LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -294,7 +294,7 @@ expresion ::=
         return c.sec();
       };
     :}
-  | CSC LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | CSC LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -302,7 +302,7 @@ expresion ::=
         return c.csc();
       };
     :}
-  | COT LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | COT LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -310,7 +310,7 @@ expresion ::=
         return c.cot();
       };
     :}
-  | ROUND LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | ROUND LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () ->
       {
@@ -318,11 +318,11 @@ expresion ::=
         return c.round();
       };
     :}
-  | LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () -> e.evaluate();
     :}
-  | MINUS LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | MINUS LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () -> 
       {
@@ -331,7 +331,7 @@ expresion ::=
         return c.multiply(minus);
       };
     :}
-  | REAL:r LEFT_PARENTH expresion:e RIGHT_PARENTH
+  | REAL:r LEFT_PARENTH expresionComplejo:e RIGHT_PARENTH
     {:
       RESULT = () -> 
       {

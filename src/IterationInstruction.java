@@ -2,7 +2,7 @@ import java.util.Map;
 import java.util.List;
 
 public class IterationInstruction implements Instruction {
-  public IterationInstruction(String id, Expression end, Expression step, List<Instruction> body, Map<String, Complex> variables) {
+  public IterationInstruction(String id, ComplexExpression end, ComplexExpression step, List<Instruction> body, Map<String, Complex> variables) {
     this.id = id;
     this.end = end;
     this.step = step;
@@ -41,8 +41,8 @@ public class IterationInstruction implements Instruction {
   }
 
   private String id;
-  private Expression end;
-  private Expression step;
+  private ComplexExpression end;
+  private ComplexExpression step;
   private List<Instruction> body;
   private Map<String, Complex> variables;
 }

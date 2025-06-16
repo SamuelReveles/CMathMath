@@ -2,11 +2,11 @@ import java.util.Map;
 
 public class AssignOpInstruction implements Instruction {
     private final String id;
-    private final Expression expr;
+    private final ComplexExpression expr;
     private final Map<String, Complex> variables;
     private final String op;
 
-    public AssignOpInstruction(String id, Expression expr, Map<String, Complex> variables, String op) {
+    public AssignOpInstruction(String id, ComplexExpression expr, Map<String, Complex> variables, String op) {
         this.id = id;
         this.expr = expr;
         this.variables = variables;
