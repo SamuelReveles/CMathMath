@@ -9,3 +9,5 @@ src/sym.java
 src/*.java~
 src/*.sh
 src/*.txt
+/bin
+/bin

@@ -89,7 +89,7 @@ public class Complex {
     }
 
     public Complex round() {
-        return new Complex(Math.round(this.real), Math.round(this.imaginary));
+        return new Complex(Math.round(this.real * 100) / 100, Math.round(this.imaginary * 100) / 100);
     }
 
     public double magnitude() {
@@ -100,12 +100,21 @@ public class Complex {
         return Math.atan2(this.imaginary, this.real);
     }
 
-    public Complex pow(double n) {
-        double r = magnitude();
-        double theta = argument();
-        double newR = Math.pow(r, n);
-        double newTheta = n * theta;
-        return new Complex(newR * Math.cos(newTheta), newR * Math.sin(newTheta));
+    public Complex pow(Complex exponent) {
+        double r = this.magnitude();
+        double theta = this.argument();
+
+        // ln(z) = ln(r) + iθ
+        Complex logZ = new Complex(Math.log(r), theta);
+
+        // w * ln(z)
+        Complex wLogZ = exponent.multiply(logZ);
+
+        // e^(w * ln(z)) = exp(a + bi) = exp(a) * (cos(b) + i sin(b))
+        double expReal = Math.exp(wLogZ.real);
+        return new Complex(
+                expReal * Math.cos(wLogZ.imaginary),
+                expReal * Math.sin(wLogZ.imaginary));
     }
 
     @Override

@@ -23,8 +23,8 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 public class UI extends Application {
 
     private static final String[] KEYWORDS = {
-            "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
-            "conjunto", "PI", "E", "imprimir"
+      "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
+      "conjunto", "PI", "E", "imprimir"
     };
 
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
@@ -33,8 +33,9 @@ public class UI extends Application {
     private static final String DEGREES_PATTERN = "(?<!\\S)-?\\d+(\\.\\d+)?°(?!\\S)";
     private static final String OPERATOR_PATTERN = "[+\\-*/=<>!&|%^~]+";
     private static final String BRACE_PATTERN = "[\\[\\]{}()]";
-    private static final String COMMENT_PATTERN = "//[^\n]*";
+    private static final String COMMENT_PATTERN = "//.*";
     private static final String COMMA_PATTERN = ",";
+    private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
     private static final String ID_PATTERN = "\\b(?!(" + String.join("|", KEYWORDS).replace(" ", "\\s")
             + ")\\b)[a-zA-Z_][a-zA-Z_0-9]*\\b";
 
@@ -43,6 +44,7 @@ public class UI extends Application {
                     + "|(?<IMAGINARY>" + IMAGINARY_PATTERN + ")"
                     + "|(?<DEGREES>" + DEGREES_PATTERN + ")"
                     + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                    + "|(?<STRING>" + STRING_PATTERN + ")"
                     + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
                     + "|(?<BRACE>" + BRACE_PATTERN + ")"
                     + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
@@ -71,11 +73,6 @@ public class UI extends Application {
         exportBtn.setStyle("-fx-font-size: 12px; -fx-padding: 6 10 6 10;");
         exportBtn.setOnAction(e -> exportCode(stage));
 
-        Button exeBtn = new Button("Generar EXE");
-        exeBtn.getStyleClass().add("file-btn");
-        exeBtn.setStyle("-fx-font-size: 12px; -fx-padding: 6 10 6 10;");
-        exeBtn.setOnAction(e -> generateExe());
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -84,7 +81,7 @@ public class UI extends Application {
         runBtn.setStyle("-fx-font-size: 13px; -fx-padding: 6 18 6 18;");
         runBtn.setOnAction(e -> compileCode());
 
-        fileBar.getChildren().addAll(importBtn, exportBtn, exeBtn, spacer, runBtn);
+        fileBar.getChildren().addAll(importBtn, exportBtn, spacer, runBtn);
 
         // --- Editor de código con RichTextFX ---
         codeEditor = new CodeArea();
@@ -166,14 +163,16 @@ public class UI extends Application {
                     : keywordMatcher.group("NUMBER") != null ? "number"
                             : keywordMatcher.group("IMAGINARY") != null ? "imaginary"
                                     : keywordMatcher.group("DEGREES") != null ? "degrees"
-                                            : keywordMatcher.group("ID") != null ? "id"
-                                                    : keywordMatcher.group("OPERATOR") != null ? "operator"
-                                                            : keywordMatcher.group("BRACE") != null ? "brace"
-                                                                    : keywordMatcher.group("COMMENT") != null
-                                                                            ? "comment"
-                                                                            : keywordMatcher.group("COMMA") != null
-                                                                                    ? "comma"
-                                                                                    : null;
+                                            : keywordMatcher.group("STRING") != null ? "string"
+                                                    : keywordMatcher.group("ID") != null ? "id"
+                                                            : keywordMatcher.group("OPERATOR") != null ? "operator"
+                                                                    : keywordMatcher.group("BRACE") != null ? "brace"
+                                                                    : keywordMatcher.group("COMMENT") != null ? "comment"
+                                                                    : keywordMatcher.group("BRACE") != null ? "brace"
+                                                                                    : keywordMatcher
+                                                                                            .group("COMMA") != null
+                                                                                                    ? "comma"
+                                                                                                    : null;
             assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), keywordMatcher.start() - lastKeyword);
             spansBuilder.add(Collections.singleton(styleClass), keywordMatcher.end() - keywordMatcher.start());
@@ -223,11 +222,6 @@ public class UI extends Application {
                 consoleOutput.appendText("Error al exportar archivo.\n");
             }
         }
-    }
-
-    private void generateExe() {
-        showConsole();
-        consoleOutput.appendText("Función para generar EXE no implementada.\n");
     }
 
     private void compileCode() {

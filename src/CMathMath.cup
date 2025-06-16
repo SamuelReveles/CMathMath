@@ -30,22 +30,23 @@ parser code
 :}
 
 terminal double REAL, IMAGINARY, DEGREES;
-terminal PLUS, MINUS, MULTIPLICATION, DIVISION, ROUND;
+terminal PLUS, MINUS, MULTIPLICATION, DIVISION, POW, ROUND;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
-  SINO, PEROSI, F, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
-  LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA,
-  UNION, INTERSECT;
+  SINO, PEROSI, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
+  LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA, EQUALS,
+  UNION, INTERSECT, STRING;
 
 non terminal codigo;
 non terminal List<Instruction> instrucciones;
 non terminal Instruction instruccion;
 non terminal List<Instruction> bloque;
 non terminal SetExpression expresionConjunto;
+non terminal List<String> parametros;
 non terminal List<Expression> listaExpresiones;
 non terminal Expression expresion;
 
 precedence left PLUS, MINUS;
-precedence left MULTIPLICATION, DIVISION, ROUND;
+precedence left MULTIPLICATION, DIVISION, POW, ROUND;
 precedence left UNION, INTERSECT;
 
 start with codigo;
@@ -89,6 +90,14 @@ instruccion ::=
     {:
       RESULT = new PrintInstruction(e, consoleController);
     :}
+  | PRINT STRING:s
+    {:
+      RESULT = new PrintInstruction(s, consoleController);
+    :}
+  | PRINT STRING:s expresion: e
+    {:
+      RESULT = new PrintInstruction(s, e, consoleController);
+    :}
   | PRINT expresionConjunto:ec
     {:
       RESULT = new PrintSetInstruction(ec, consoleController);
@@ -96,6 +105,38 @@ instruccion ::=
   | DADO ID:id TALQUE expresion:e
     {:
       RESULT = new DeclareInstruction(id, e, variables);
+    :}
+  | EQUIVALE ID:id EQUALS expresion:e
+    {:
+      RESULT = new DeclareInstruction(id, e, variables);
+    :}
+  | EQUIVALE ID:id PLUS EQUALS expresion:e
+    {:
+      RESULT = new AssignOpInstruction(id, e, variables, "+");
+    :}
+  | EQUIVALE ID:id MINUS EQUALS expresion:e
+    {:
+      RESULT = new AssignOpInstruction(id, e, variables, "-");
+    :}
+  | EQUIVALE ID:id MULTIPLICATION EQUALS expresion:e
+    {:
+      RESULT = new AssignOpInstruction(id, e, variables, "*");
+    :}
+  | EQUIVALE ID:id DIVISION EQUALS expresion:e
+    {:
+      RESULT = new AssignOpInstruction(id, e, variables, "/");
+    :}
+  | EQUIVALE ID:id POW EQUALS expresion:e
+    {:
+      RESULT = new AssignOpInstruction(id, e, variables, "^");
+    :}
+  | EQUIVALE ID:id PLUS PLUS
+    {:
+      RESULT = new IncrementInstruction(id, variables, 1);
+    :}
+  | EQUIVALE ID:id MINUS MINUS
+    {:
+      RESULT = new IncrementInstruction(id, variables, -1);
     :}
   | DESDE ID:id AVANZAR expresion:end CON expresion:step bloque:body
     {:
@@ -210,6 +251,15 @@ expresion ::=
         Complex c1 = e1.evaluate();
         Complex c2 = e2.evaluate();
         return c1.divide(c2);
+      };
+    :}
+  | expresion:e1 POW expresion:e2
+    {:
+      RESULT = () ->
+      {
+        Complex c1 = e1.evaluate();
+        Complex c2 = e2.evaluate();
+        return c1.pow(c2);
       };
     :}
   | SIN LEFT_PARENTH expresion:e RIGHT_PARENTH
