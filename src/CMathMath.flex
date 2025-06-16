@@ -43,6 +43,7 @@ ERROR = .
 "cot" { return new Symbol(sym.COT, yyline, yycolumn, yytext()); }
 "union" { return new Symbol(sym.UNION, yyline, yycolumn, yytext()); }
 "interseccion" { return new Symbol(sym.INTERSECT, yyline, yycolumn, yytext()); }
+"redondear" { return new Symbol(sym.ROUND, yyline, yycolumn, yytext()); }
 "dado" { return new Symbol(sym.DADO, yyline, yycolumn, yytext()); }
 "equivale" { return new Symbol(sym.EQUIVALE, yyline, yycolumn, yytext()); }
 "si" { return new Symbol(sym.SI, yyline, yycolumn, yytext()); }

@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -22,9 +23,9 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 public class UI extends Application {
 
     private static final String[] KEYWORDS = {
-    "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
-    "conjunto", "PI", "E", "imprimir"
-};
+      "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
+      "conjunto", "PI", "E", "imprimir"
+    };
 
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";
     private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
@@ -187,9 +188,8 @@ public class UI extends Application {
     private void importCode(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Importar archivo de código");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos .cmm", "*.cmm"));
         var file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             try {
@@ -205,12 +205,15 @@ public class UI extends Application {
     private void exportCode(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Exportar código");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Archivos de texto", "*.txt", "*.cmm"),
-                new FileChooser.ExtensionFilter("Todos los archivos", "*.*"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos .cmm", "*.cmm"));
         var file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try {
+                String path = file.toPath().toString();
+                if (!path.toLowerCase().endsWith(".cmm")) {
+                    file = new File(path + ".cmm");
+                }
                 Files.writeString(file.toPath(), codeEditor.getText());
                 showConsole();
                 consoleOutput.appendText("Código exportado correctamente.\n");
@@ -238,7 +241,7 @@ public class UI extends Application {
         // Se construye el parser con un lexer que lee el código y
         // con el consoleController local para mostrar resultados en consola.
         CMathMathParser parser = new CMathMathParser(new CMathMathLexer(stringReader), consoleController);
-        
+
         // Proceso principal de parseo.
         try {
             parser.parse();

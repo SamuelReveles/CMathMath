@@ -35,6 +35,12 @@ public class Complex {
         return new Complex(r, i);
     }
 
+    public Complex multiply(double other) {
+        double r = this.real * other;
+        double i = this.imaginary * other;
+        return new Complex(r, i);
+    }
+
     public Complex divide(Complex other) {
         double denominator = other.real * other.real + other.imaginary * other.imaginary;
         double r = (this.real * other.real + this.imaginary * other.imaginary) / denominator;
