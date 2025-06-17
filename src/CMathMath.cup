@@ -22,7 +22,7 @@ parser code
   @Override
   public void report_fatal_error(String message, Object info) {
     consoleController.println("Error de sintaxis irrecuperable");
-    throw new RuntimeException("Análisis sintáctico abortado por error irrecuperable");
+    throw new RuntimeException("Análisis sintáctico abortado por error de sintaxis irrecuperable");
   }
 
   public Complex assertComplexExpression(Expression e) {
@@ -75,7 +75,12 @@ codigo ::=
     {:
       for (Instruction in : ins)
       {
-        in.run();
+        try {
+          in.run();
+        }
+        catch (Exception e) {
+          consoleController.println("Error: " + e.getMessage());
+        }
       }
     :}
 ;
@@ -94,7 +99,10 @@ instrucciones ::=
       instructions.add(in);
       RESULT = instructions;
     :}
-  | error instrucciones
+  | error instrucciones:ins
+    {:
+      RESULT = ins;
+    :}
 ;
 
 bloque ::= 

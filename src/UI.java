@@ -248,7 +248,7 @@ public class UI extends Application {
         }
         // Cualquier error al parsear será informado en la misma consola.
         catch (Exception e) {
-            consoleOutput.appendText("Excepción ocurrida:\n" + e.getMessage());
+            consoleOutput.appendText("Error: " + e.getMessage());
         }
     }
 
