@@ -2,10 +2,10 @@ import java.util.Map;
 
 public class IncrementInstruction implements Instruction {
     private final String id;
-    private final Map<String, Complex> variables;
+    private final Map<String, Object> variables;
     private final int delta;
 
-    public IncrementInstruction(String id, Map<String, Complex> variables, int delta) {
+    public IncrementInstruction(String id, Map<String, Object> variables, int delta) {
         this.id = id;
         this.variables = variables;
         this.delta = delta;
@@ -13,14 +13,13 @@ public class IncrementInstruction implements Instruction {
 
     @Override
     public void run() {
-        Complex current = variables.get(id);
-        if (current == null) current = Complex.fromReal(0);
-        variables.put(id, current.add(Complex.fromReal(delta)));
-    }
+        Object variable = variables.get(id);
+        if (variable == null) variable = Complex.fromReal(0);
+        
+        if (!(variable instanceof Complex))
+            throw new IncorrectExpressionTypeException(variable, ExpressionType.NUMBER);
 
-    public void runWithVars(Map<String, Complex> vars) {
-        Complex current = vars.get(id);
-        if (current == null) current = Complex.fromReal(0);
-        vars.put(id, current.add(Complex.fromReal(delta)));
+        Complex current = (Complex) variable;
+        variables.put(id, current.add(Complex.fromReal(delta)));
     }
 }

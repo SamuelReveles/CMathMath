@@ -2,9 +2,16 @@ import java.util.List;
 import java.util.HashSet;
 
 public class Set {
-  public Set(List<ComplexExpression> expressions) {
+  public Set(List<Expression> expressions) {
     elements = new HashSet<>();
-    expressions.forEach(e -> elements.add(e.evaluate()));
+    expressions.forEach(e -> {
+      Object obj = e.evaluate();
+
+      if (!(obj instanceof Complex))
+        throw new IncorrectExpressionTypeException(obj, ExpressionType.NUMBER);
+      
+      elements.add((Complex) obj);
+    });
   }
 
   public Set(Set other) {

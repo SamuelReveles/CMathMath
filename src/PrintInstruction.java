@@ -1,9 +1,9 @@
 public class PrintInstruction implements Instruction {
-  private ComplexExpression expression;
+  private Expression expression;
   private String string;
   private ConsoleController consoleController;
 
-  public PrintInstruction(ComplexExpression expression, ConsoleController consoleController) {
+  public PrintInstruction(Expression expression, ConsoleController consoleController) {
     this.expression = expression;
     this.consoleController = consoleController;
     this.string = null;
@@ -15,7 +15,7 @@ public class PrintInstruction implements Instruction {
     this.expression = null;
   }
 
-  public PrintInstruction(String string, ComplexExpression expression, ConsoleController consoleController) {
+  public PrintInstruction(String string, Expression expression, ConsoleController consoleController) {
     this.string = string;
     this.consoleController = consoleController;
     this.expression = expression;
