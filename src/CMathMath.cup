@@ -22,7 +22,7 @@ parser code
   @Override
   public void report_fatal_error(String message, Object info) {
     consoleController.println("Error de sintaxis irrecuperable");
-    throw new RuntimeException("Análisis sintáctico abortado por error irrecuperable");
+    throw new RuntimeException("Análisis sintáctico abortado por error de sintaxis irrecuperable");
   }
 
   public Complex assertComplexExpression(Expression e) {
@@ -50,7 +50,7 @@ parser code
 terminal double REAL, IMAGINARY, DEGREES;
 terminal PLUS, MINUS, MULTIPLICATION, DIVISION, POW, ROUND;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
-  SINO, PEROSI, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
+  SINO, PEROSI, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI, EULER,
   LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA, EQUALS,
   UNION, INTERSECT, STRING;
 
@@ -75,7 +75,12 @@ codigo ::=
     {:
       for (Instruction in : ins)
       {
-        in.run();
+        try {
+          in.run();
+        }
+        catch (Exception e) {
+          consoleController.println("Error: " + e.getMessage());
+        }
       }
     :}
 ;
@@ -94,7 +99,10 @@ instrucciones ::=
       instructions.add(in);
       RESULT = instructions;
     :}
-  | error instrucciones
+  | error instrucciones:ins
+    {:
+      RESULT = ins;
+    :}
 ;
 
 bloque ::= 
@@ -242,6 +250,14 @@ expresionComplejo ::=
   | MINUS DEGREES:d
     {:
       RESULT = () -> Complex.fromDegrees(-d);
+    :}
+  | PI:pi
+    {:
+      RESULT = () -> Complex.fromReal(Math.PI);
+    :}
+  | EULER:e
+    {:
+      RESULT = () -> Complex.fromReal(Math.E);
     :}
   | expresion:e1 PLUS expresion:e2
     {:
