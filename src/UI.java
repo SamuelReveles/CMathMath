@@ -24,7 +24,7 @@ public class UI extends Application {
 
     private static final String[] KEYWORDS = {
       "dado", "equivale", "si", "si no", "pero si", "f", "mientras", "desde", "con", "avanzar", "tal que",
-      "conjunto", "PI", "E", "imprimir"
+      "conjunto", "PI", "e", "imprimir"
     };
 
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS).replace(" ", "\\s") + ")\\b";

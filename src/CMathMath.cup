@@ -50,7 +50,7 @@ parser code
 terminal double REAL, IMAGINARY, DEGREES;
 terminal PLUS, MINUS, MULTIPLICATION, DIVISION, POW, ROUND;
 terminal String PRINT, LEFT_PARENTH, RIGHT_PARENTH, DADO, SI, EQUIVALE,
-  SINO, PEROSI, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI,
+  SINO, PEROSI, MIENTRAS, DESDE, CON, AVANZAR, TALQUE, CONJUNTO, PI, EULER,
   LEFT_BRACE, RIGHT_BRACE, ID, SIN, COS, TAN, SEC, CSC, COT, COMMA, EQUALS,
   UNION, INTERSECT, STRING;
 
@@ -250,6 +250,14 @@ expresionComplejo ::=
   | MINUS DEGREES:d
     {:
       RESULT = () -> Complex.fromDegrees(-d);
+    :}
+  | PI:pi
+    {:
+      RESULT = () -> Complex.fromReal(Math.PI);
+    :}
+  | EULER:e
+    {:
+      RESULT = () -> Complex.fromReal(Math.E);
     :}
   | expresion:e1 PLUS expresion:e2
     {:

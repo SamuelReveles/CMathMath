@@ -56,6 +56,7 @@ ERROR = .
 "tal que" { return new Symbol(sym.TALQUE, yyline, yycolumn, yytext()); }
 "conjunto" { return new Symbol(sym.CONJUNTO, yyline, yycolumn, yytext()); }
 "PI" { return new Symbol(sym.PI, yyline, yycolumn, yytext()); }
+"e" { return new Symbol(sym.EULER, yyline, yycolumn, yytext()); }
 "imprimir" { return new Symbol(sym.PRINT, yyline, yycolumn, yytext()); }
 {IDENTIFIER} { return new Symbol(sym.ID, yyline, yycolumn, yytext()); }
 {ERROR} {  System.out.println("Entrada inválida en la línea " + yyline + ", "+ yycolumn + ": " + yytext()); }
