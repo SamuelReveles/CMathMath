@@ -1,3 +1,3 @@
 public interface Expression {
-  public Complex evaluate();
+  public Object evaluate();
 }

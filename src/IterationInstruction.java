@@ -2,7 +2,7 @@ import java.util.Map;
 import java.util.List;
 
 public class IterationInstruction implements Instruction {
-  public IterationInstruction(String id, Expression end, Expression step, List<Instruction> body, Map<String, Complex> variables) {
+  public IterationInstruction(String id, Expression end, Expression step, List<Instruction> body, Map<String, Object> variables) {
     this.id = id;
     this.end = end;
     this.step = step;
@@ -12,14 +12,24 @@ public class IterationInstruction implements Instruction {
   
   @Override
   public void run() {
-    Complex iterador = variables.get(id);
-    if (iterador == null) {
+    Object iteradorObj = variables.get(id);
+    if (iteradorObj == null) {
       System.err.println("Variable iterador no declarada: " + id);
-      iterador = Complex.fromReal(0);
+      iteradorObj = Complex.fromReal(0);
     }
+    if (!(iteradorObj instanceof Complex))
+      throw new IncorrectExpressionTypeException(iteradorObj, ExpressionType.NUMBER);
+    Complex iterador = (Complex) iteradorObj;
 
-    Complex fin = end.evaluate();
-    Complex paso = step.evaluate();
+    Object finObj = end.evaluate();
+    if (!(finObj instanceof Complex))
+      throw new IncorrectExpressionTypeException(finObj, ExpressionType.NUMBER);
+    Complex fin = (Complex) finObj;
+
+    Object pasoObj = step.evaluate();
+    if (!(pasoObj instanceof Complex))
+      throw new IncorrectExpressionTypeException(pasoObj, ExpressionType.NUMBER);
+    Complex paso = (Complex) pasoObj;
 
     if (iterador.isLessThan(fin)) {
       while (iterador.isLessThan(fin) || iterador.equals(fin)) {
@@ -44,5 +54,5 @@ public class IterationInstruction implements Instruction {
   private Expression end;
   private Expression step;
   private List<Instruction> body;
-  private Map<String, Complex> variables;
+  private Map<String, Object> variables;
 }

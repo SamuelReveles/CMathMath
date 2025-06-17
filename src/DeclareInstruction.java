@@ -1,7 +1,7 @@
 import java.util.Map;
 
 public class DeclareInstruction implements Instruction {
-  public DeclareInstruction(String id, Expression expression, Map<String, Complex> variables) {
+  public DeclareInstruction(String id, Expression expression, Map<String, Object> variables) {
     this.id = id;
     this.expression = expression;
     this.variables = variables;
@@ -14,5 +14,5 @@ public class DeclareInstruction implements Instruction {
 
   private String id;
   private Expression expression;
-  private Map<String, Complex> variables;
+  private Map<String, Object> variables;
 }

@@ -25,7 +25,25 @@ parser code
     throw new RuntimeException("Análisis sintáctico abortado por error irrecuperable");
   }
 
-  private Map<String, Complex> variables = new HashMap<>();
+  public Complex assertComplexExpression(Expression e) {
+    Object object = e.evaluate();
+
+    if (!(object instanceof Complex))
+      throw new IncorrectExpressionTypeException(object, ExpressionType.NUMBER);
+
+    return (Complex) object;
+  }
+
+  public Set assertSetExpression(Expression e) {
+    Object object = e.evaluate();
+
+    if (!(object instanceof Set))
+      throw new IncorrectExpressionTypeException(object, ExpressionType.SET);
+
+    return (Set) object;
+  }
+
+  private Map<String, Object> variables = new HashMap<>();
   private ConsoleController consoleController;
 :}
 
@@ -40,10 +58,11 @@ non terminal codigo;
 non terminal List<Instruction> instrucciones;
 non terminal Instruction instruccion;
 non terminal List<Instruction> bloque;
-non terminal SetExpression expresionConjunto;
+non terminal Expression expresion;
+non terminal Expression expresionConjunto;
 non terminal List<String> parametros;
 non terminal List<Expression> listaExpresiones;
-non terminal Expression expresion;
+non terminal Expression expresionComplejo;
 
 precedence left PLUS, MINUS;
 precedence left MULTIPLICATION, DIVISION, POW, ROUND;
@@ -94,13 +113,9 @@ instruccion ::=
     {:
       RESULT = new PrintInstruction(s, consoleController);
     :}
-  | PRINT STRING:s expresion: e
+  | PRINT STRING:s expresion:e
     {:
       RESULT = new PrintInstruction(s, e, consoleController);
-    :}
-  | PRINT expresionConjunto:ec
-    {:
-      RESULT = new PrintSetInstruction(ec, consoleController);
     :}
   | DADO ID:id TALQUE expresion:e
     {:
@@ -144,24 +159,48 @@ instruccion ::=
     :}
 ;
 
+expresion ::=
+    ID:id
+    {:
+      RESULT = () -> {
+        Object object = variables.get(id);
+        
+        if (object == null) {
+          throw new RuntimeException("La variable '" + id + "' no está definida");
+        }
+        else {
+          return object;
+        }
+      };
+    :}
+  | expresionConjunto:eConjunto
+    {:
+      RESULT = () -> eConjunto.evaluate();
+    :}
+  | expresionComplejo:eComplejo
+    {:
+      RESULT = () -> eComplejo.evaluate();
+    :}
+;
+
 expresionConjunto ::=
     LEFT_BRACE listaExpresiones:le RIGHT_BRACE
     {:
       RESULT = () -> new Set(le);
     :}
-  | expresionConjunto:ec1 UNION expresionConjunto:ec2
+  | expresion:e1 UNION expresion:e2
     {:
       RESULT = () -> {
-        Set c1 = ec1.evaluate();
-        Set c2 = ec2.evaluate();
+        Set c1 = assertSetExpression(e1);
+        Set c2 = assertSetExpression(e2);
         return c1.union(c2);
       };
     :}
-  | expresionConjunto:ec1 INTERSECT expresionConjunto:ec2
+  | expresion:e1 INTERSECT expresion:e2
     {:
       RESULT = () -> {
-        Set c1 = ec1.evaluate();
-        Set c2 = ec2.evaluate();
+        Set c1 = assertSetExpression(e1);
+        Set c2 = assertSetExpression(e2);
         return c1.intersect(c2);
       };
     :}
@@ -183,7 +222,7 @@ listaExpresiones ::=
     :}
 ;
 
-expresion ::= 
+expresionComplejo ::= 
     REAL:r
     {:
       RESULT = () -> Complex.fromReal(r);
@@ -204,16 +243,12 @@ expresion ::=
     {:
       RESULT = () -> Complex.fromDegrees(-d);
     :}
-  | ID:id
-    {:
-      RESULT = () -> variables.get(id);
-    :}
   | expresion:e1 PLUS expresion:e2
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.add(c2);
       };
     :}
@@ -221,8 +256,8 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.substract(c2);
       };
     :}
@@ -230,8 +265,8 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.multiply(c2);
       };
     :}
@@ -239,8 +274,8 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.multiply(c2);
       };
     :}
@@ -248,8 +283,8 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.divide(c2);
       };
     :}
@@ -257,8 +292,8 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c1 = e1.evaluate();
-        Complex c2 = e2.evaluate();
+        Complex c1 = assertComplexExpression(e1);
+        Complex c2 = assertComplexExpression(e2);
         return c1.pow(c2);
       };
     :}
@@ -266,7 +301,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.sin();
       };
     :}
@@ -274,7 +309,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.cos();
       };
     :}
@@ -282,7 +317,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.tan();
       };
     :}
@@ -290,7 +325,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.sec();
       };
     :}
@@ -298,7 +333,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.csc();
       };
     :}
@@ -306,7 +341,7 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.cot();
       };
     :}
@@ -314,19 +349,19 @@ expresion ::=
     {:
       RESULT = () ->
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.round();
       };
     :}
   | LEFT_PARENTH expresion:e RIGHT_PARENTH
     {:
-      RESULT = () -> e.evaluate();
+      RESULT = () -> assertComplexExpression(e);
     :}
   | MINUS LEFT_PARENTH expresion:e RIGHT_PARENTH
     {:
       RESULT = () -> 
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         Complex minus = new Complex(-1, -1);
         return c.multiply(minus);
       };
@@ -335,7 +370,7 @@ expresion ::=
     {:
       RESULT = () -> 
       {
-        Complex c = e.evaluate();
+        Complex c = assertComplexExpression(e);
         return c.multiply(r);
       };
     :}
